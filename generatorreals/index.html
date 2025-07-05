@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMF Short Video Prompt Generator – TikTok & Reels Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .required::after {
+            content: " *";
+            color: #ff4757;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .generate-btn:hover::before {
+            left: 100%;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .result-container {
+            margin-top: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            border: 2px solid #e1e5e9;
+            display: none;
+        }
+
+        .result-container.show {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .result-header h3 {
+            color: #333;
+            font-size: 1.5rem;
+        }
+
+        .copy-btn {
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .copy-btn.copied {
+            background: #17a2b8;
+        }
+
+        .result-text {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #dee2e6;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            background: #f8f9fa;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 AMF Short Video Prompt Generator</h1>
+            <p>TikTok & Reels Edition - Generate Perfect Video Scripts</p>
+        </div>
+
+        <div class="form-container">
+            <form id="promptForm">
+                <div class="form-group">
+                    <label for="brand" class="required">Nama Brand</label>
+                    <input type="text" id="brand" name="brand" value="AMF" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="deskripsi" class="required">Deskripsi Produk</label>
+                    <textarea id="deskripsi" name="deskripsi" placeholder="Contoh: Layanan AI yang bantu pengguna atur uang lewat WhatsApp" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="tujuan" class="required">Tujuan Branding</label>
+                    <textarea id="tujuan" name="tujuan" placeholder="Contoh: Meningkatkan awareness, edukasi finansial, dll" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="topik" class="required">Topik Video</label>
+                    <input type="text" id="topik" name="topik" placeholder="Contoh: Kenapa kamu selalu gagal menabung?" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="audiens" class="required">Target Audiens</label>
+                    <input type="text" id="audiens" name="audiens" placeholder="Contoh: Gen-Z, ibu rumah tangga, karyawan kantoran" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="gaya" class="required">Gaya Penyampaian</label>
+                        <select id="gaya" name="gaya" required>
+                            <option value="">Pilih Gaya</option>
+                            <option value="Hook Style">Hook Style</option>
+                            <option value="Storytelling">Storytelling</option>
+                            <option value="Lucu">Lucu</option>
+                            <option value="Edukatif">Edukatif</option>
+                            <option value="Dramatis">Dramatis</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tone" class="required">Tone Emosi</label>
+                        <select id="tone" name="tone" required>
+                            <option value="">Pilih Tone</option>
+                            <option value="Ringan">Ringan</option>
+                            <option value="Emosional">Emosional</option>
+                            <option value="Inspiratif">Inspiratif</option>
+                            <option value="Reflektif">Reflektif</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="platform" class="required">Platform</label>
+                        <select id="platform" name="platform" required>
+                            <option value="">Pilih Platform</option>
+                            <option value="TikTok">TikTok</option>
+                            <option value="Instagram Reels">Instagram Reels</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="durasi" class="required">Durasi Maks (detik)</label>
+                        <input type="number" id="durasi" name="durasi" value="60" min="15" max="90" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cta">Call to Action</label>
+                    <textarea id="cta" name="cta" placeholder="Contoh: Coba cek uangmu sekarang"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="catatan">Catatan Tambahan</label>
+                    <textarea id="catatan" name="catatan" placeholder="Contoh: Gunakan bahasa anak muda banget, pakai emoji, dll"></textarea>
+                </div>
+
+                <button type="submit" class="generate-btn" id="generateBtn">
+                    Generate Prompt ChatGPT
+                </button>
+            </form>
+
+            <div class="result-container" id="resultContainer">
+                <div class="result-header">
+                    <h3>📋 Prompt Generated</h3>
+                    <button class="copy-btn" id="copyBtn">Copy to Clipboard</button>
+                </div>
+                <div class="result-text" id="resultText"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 AMF - Artificial Intelligence Management Financial | Made with ❤️ for Content Creators</p>
+        </div>
+    </div>
+
+    <script>
+        const promptTemplate = `Saya ingin membuat skrip video pendek berdurasi maksimal {{durasi}} detik untuk platform {{platform}}.
+
+Berikut data lengkapnya:
+📌 Brand: {{brand}}
+📦 Deskripsi Produk: {{deskripsi}}
+🎯 Tujuan Branding: {{tujuan}}
+📹 Topik Video: {{topik}}
+👤 Target Audiens: {{audiens}}
+🗣️ Gaya Penyampaian: {{gaya}}
+🎭 Tone Emosi: {{tone}}
+📣 CTA: {{cta}}
+🗒️ Catatan Tambahan: {{catatan}}
+
+Buatkan saya skrip video dengan struktur:
+1. **Hook (awal, 0–5 detik):** kalimat pembuka yang langsung menarik perhatian
+2. **Isi utama (5–45 detik):** penjelasan menarik sesuai gaya dan topik
+3. **Penutup / CTA (5–10 detik terakhir):** ajakan, motivasi, atau punchline
+
+Gunakan gaya bahasa yang natural, ringan, tidak formal, dan sesuai dengan target audiens.
+Pastikan bisa dibaca atau diucapkan dalam durasi maksimal {{durasi}} detik.
+Skrip ini akan saya gunakan sebagai input untuk membuat konten video TikTok dan Instagram Reels.`;
+
+        const form = document.getElementById('promptForm');
+        const generateBtn = document.getElementById('generateBtn');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultText = document.getElementById('resultText');
+        const copyBtn = document.getElementById('copyBtn');
+
+        // Form submission handler
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading state
+            const originalText = generateBtn.innerHTML;
+            generateBtn.innerHTML = '<div class="loading"></div>Generating...';
+            generateBtn.disabled = true;
+            
+            // Simulate processing time
+            setTimeout(() => {
+                generatePrompt();
+                generateBtn.innerHTML = originalText;
+                generateBtn.disabled = false;
+            }, 1000);
+        });
+
+        function generatePrompt() {
+            const formData = new FormData(form);
+            let prompt = promptTemplate;
+            
+            // Replace all placeholders with form data
+            const replacements = {
+                'brand': formData.get('brand') || 'AMF',
+                'deskripsi': formData.get('deskripsi') || '',
+                'tujuan': formData.get('tujuan') || '',
+                'topik': formData.get('topik') || '',
+                'audiens': formData.get('audiens') || '',
+                'gaya': formData.get('gaya') || '',
+                'tone': formData.get('tone') || '',
+                'platform': formData.get('platform') || '',
+                'durasi': formData.get('durasi') || '60',
+                'cta': formData.get('cta') || 'Tidak ada CTA khusus',
+                'catatan': formData.get('catatan') || 'Tidak ada catatan tambahan'
+            };
+            
+            // Replace placeholders in template
+            for (const [key, value] of Object.entries(replacements)) {
+                const placeholder = new RegExp(`{{${key}}}`, 'g');
+                prompt = prompt.replace(placeholder, value);
+            }
+            
+            // Display result
+            resultText.textContent = prompt;
+            resultContainer.classList.add('show');
+            
+            // Smooth scroll to result
+            resultContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Copy to clipboard functionality
+        copyBtn.addEventListener('click', function() {
+            const textToCopy = resultText.textContent;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    showCopySuccess();
+                }).catch(() => {
+                    fallbackCopy(textToCopy);
+                });
+            } else {
+                fallbackCopy(textToCopy);
+            }
+        });
+
+        function fallbackCopy(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showCopySuccess();
+            } catch (err) {
+                console.error('Copy failed:', err);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function showCopySuccess() {
+            const originalText = copyBtn.textContent;
+            copyBtn.textContent = 'Copied!';
+            copyBtn.classList.add('copied');
+            
+            setTimeout(() => {
+                copyBtn.textContent = originalText;
+                copyBtn.classList.remove('copied');
+            }, 2000);
+        }
+
+        // Auto-resize textareas
+        document.querySelectorAll('textarea').forEach(textarea => {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+        });
+
+        // Add floating labels effect
+        document.querySelectorAll('input, textarea, select').forEach(element => {
+            element.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            element.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.parentElement.classList.remove('focused');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
